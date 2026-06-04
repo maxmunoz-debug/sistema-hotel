@@ -55,5 +55,5 @@ RUN php artisan storage:link
 # Exponer el puerto 80
 EXPOSE 80
 
-# Comando para correr migraciones y arrancar Apache
-CMD php artisan migrate --force && apache2-foreground
+# Comando para correr migraciones y arrancar Apache restableciendo permisos
+CMD php artisan migrate --force && chown -R www-data:www-data /var/www/database /var/www/storage /var/www/bootstrap/cache && apache2-foreground

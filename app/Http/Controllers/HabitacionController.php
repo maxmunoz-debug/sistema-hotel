@@ -47,9 +47,6 @@ class HabitacionController extends Controller
         return redirect()->to('/habitaciones');
     }
 
-    /**
-     * Actualiza una habitación existente.
-     */
     public function update(Request $request, string $id)
     {
         $habitacion = Habitacion::findOrFail($id);
@@ -58,7 +55,7 @@ class HabitacionController extends Controller
             'tipo_habitacion_id' => 'required|exists:tipos_habitacion,id',
             'numero' => 'required|string|max:50',
             'precio' => 'required|numeric|min:0',
-            'imagen' => 'nullable',
+            'imagen' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         if ($request->hasFile('imagen')) {
@@ -67,6 +64,9 @@ class HabitacionController extends Controller
             }
             $path = $request->file('imagen')->store('habitaciones', 'public');
             $validated['imagen'] = $path;
+        } else {
+            // Evitamos que se sobrescriba la imagen existente con null en la BD
+            unset($validated['imagen']);
         }
 
         $habitacion->update($validated);

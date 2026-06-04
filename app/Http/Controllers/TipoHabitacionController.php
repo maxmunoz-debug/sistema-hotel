@@ -54,12 +54,17 @@ class TipoHabitacionController extends Controller
         return redirect()->to('/tipos-habitacion');
     }
 
-    /**
-     * Elimina un tipo de habitación.
-     */
     public function destroy(string $id)
     {
         $tipoHabitacion = TipoHabitacion::findOrFail($id);
+
+        // Si existen habitaciones vinculadas a este tipo, impedimos el borrado
+        if ($tipoHabitacion->habitaciones()->exists()) {
+            return redirect()->back()->withErrors([
+                'error' => 'No se puede eliminar esta categoría porque hay habitaciones asociadas a ella. Por favor, reasigna o elimina las habitaciones primero.'
+            ]);
+        }
+
         $tipoHabitacion->delete();
 
         return redirect()->to('/tipos-habitacion');

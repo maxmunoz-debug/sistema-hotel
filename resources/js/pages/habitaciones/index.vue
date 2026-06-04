@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useForm, Head } from '@inertiajs/vue3';
 import AppSidebar from '@/components/AppSidebar.vue';
 import ModalConfirmacion from '@/components/ModalConfirmacion.vue'; // <-- Importamos el nuevo modal
+import { toast } from 'vue-sonner'; // <-- Importamos los toasts
 
 defineProps({
     habitaciones: Array,
@@ -37,11 +38,23 @@ const guardarHabitacion = () => {
     if (editando.value) {
         form.formData = true; 
         form.post(`/habitaciones/${idSeleccionado.value}`, {
-            onSuccess: () => limpiarFormulario()
+            onSuccess: () => {
+                limpiarFormulario();
+                toast.success('Habitación actualizada con éxito.');
+            },
+            onError: () => {
+                toast.error('Error al actualizar la habitación. Verifica los datos.');
+            }
         });
     } else {
         form.post('/habitaciones', {
-            onSuccess: () => limpiarFormulario()
+            onSuccess: () => {
+                limpiarFormulario();
+                toast.success('Habitación guardada con éxito.');
+            },
+            onError: () => {
+                toast.error('Error al guardar la habitación. Verifica los datos.');
+            }
         });
     }
 };
@@ -74,6 +87,12 @@ const confirmarEliminacion = () => {
             onSuccess: () => {
                 mostrarModalEliminar.value = false;
                 idParaEliminar.value = null;
+                toast.success('Habitación eliminada del catálogo.');
+            },
+            onError: () => {
+                mostrarModalEliminar.value = false;
+                idParaEliminar.value = null;
+                toast.error('No se pudo eliminar la habitación.');
             }
         });
     }

@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { useForm, Head } from '@inertiajs/vue3';
 import AppSidebar from '@/components/AppSidebar.vue';
 import ModalConfirmacion from '@/components/ModalConfirmacion.vue';
+import { toast } from 'vue-sonner'; // <-- Importamos los toasts
 
 defineProps({
     tipos: Array
@@ -23,11 +24,23 @@ const form = useForm({
 const guardarTipo = () => {
     if (editando.value) {
         form.put(`/tipos-habitacion/${idSeleccionado.value}`, {
-            onSuccess: () => limpiarFormulario()
+            onSuccess: () => {
+                limpiarFormulario();
+                toast.success('Categoría actualizada con éxito.');
+            },
+            onError: () => {
+                toast.error('Error al actualizar la categoría.');
+            }
         });
     } else {
         form.post('/tipos-habitacion', {
-            onSuccess: () => limpiarFormulario()
+            onSuccess: () => {
+                limpiarFormulario();
+                toast.success('Categoría guardada con éxito.');
+            },
+            onError: () => {
+                toast.error('Error al guardar la categoría.');
+            }
         });
     }
 };
@@ -50,6 +63,16 @@ const confirmarEliminacion = () => {
             onSuccess: () => {
                 mostrarModalEliminar.value = false;
                 idParaEliminar.value = null;
+                toast.success('Categoría eliminada con éxito.');
+            },
+            onError: (errors) => {
+                mostrarModalEliminar.value = false;
+                idParaEliminar.value = null;
+                if (errors.error) {
+                    toast.error(errors.error);
+                } else {
+                    toast.error('No se pudo eliminar la categoría.');
+                }
             }
         });
     }
@@ -195,7 +218,7 @@ const limpiarFormulario = () => {
         <ModalConfirmacion 
             :mostrar="mostrarModalEliminar"
             titulo="¿Eliminar esta categoría?"
-            mensaje="Si eliminas esta categoría, asegúrate de que ninguna habitación actual dependa de ella, de lo contrario podrías desvincular tus registros."
+            mensaje="Esta acción eliminará la categoría. Asegúrate de que no tenga habitaciones asociadas, ya que de lo contrario el sistema impedirá su borrado para proteger tus datos."
             @cancelar="mostrarModalEliminar = false"
             @confirmar="confirmarEliminacion"
         />

@@ -35,5 +35,5 @@ COPY ./nginx.conf /etc/nginx/sites-available/default
 # Exponer el puerto que usa Render
 EXPOSE 80
 
-# Comando para iniciar Nginx y PHP-FPM
-CMD service nginx start && php-fpm
+# Comando para correr migraciones automáticamente al arrancar, iniciar Nginx y PHP-FPM
+CMD php artisan migrate --force && service nginx start && php-fpm
